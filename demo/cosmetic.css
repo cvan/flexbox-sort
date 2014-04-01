@@ -97,11 +97,11 @@ h2 {
   margin: 0 30px;
 }
 
-img, h2 {
+li img, h2 {
   display: inline-block;
 }
 
-img {
+li img {
   border: 0;
   height: 148px;
   width: 100px;
@@ -147,7 +147,7 @@ li a:hover .score {
     position: static;
   }
 
-  h1 em, h2, img {
+  h1 em, h2, li img {
     display: block;
   }
 
