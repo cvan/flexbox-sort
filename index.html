@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Flexbox sortable list demo</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" type="text/css" href="demo/cosmetic.css">
+    <meta charset="utf-8">
+    <style type="text/css">
+      .sortable {
+        /* The legacy way (the lame way) */
+
+        display: -webkit-box;   /* iOS 6-, Safari 3.1-6 */
+        display: -moz-box;      /* Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;   /* IE 10 */
+        display: -webkit-flex;  /* Chrome */
+        display: flex;          /* Opera 12.1, Firefox 20+ */
+
+        -ms-flex-direction: column;
+        -moz-flex-direction: column;
+        -webkit-flex-direction: column;
+        -ms-box-orient: vertical;
+        -moz-box-orient: vertical;
+        -webkit-box-orient: vertical;
+
+        /* The new way (the right way) */
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="https://github.com/cvan/flexbox-sort/"><img class="fork" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+    <a onclick="window.location='view-source:' + window.location.href" class="view-source">view source</a>
+    <h1>Wes Anderson&rsquo;s Films <em>brought to you by <a href="http://www.w3.org/TR/css-flexbox-1/" target="_blank">flexbox</a></em></h1>
+    <form>
+      <fieldset>
+        <legend>Sort by</legend>
+        <label><input type="radio" name="sort" value="title">Title</label>
+        <label><input type="radio" name="sort" value="-year">Year</label>
+        <label><input type="radio" name="sort" value="-score">RT Score</label>
+      </fieldset>
+    </form>
+    <ul class="sortable"></ul>
+    <script>
+      var span = document.createElement('span');
+      function esc(str) {
+        // Escape text to scare away the XSS boogiemonsters.
+        return span.textContent = str;
+      }
+
+      // An array of objects. In the real world, you should XHR some JSON.
+      var data = [
+        {
+          title: 'Bottle Rocket',
+          year: 1996,
+          score: 80,
+          url: 'http://www.imdb.com/title/tt0115734/',
+          photo: 'demo/bottle-rocket.jpg'
+        },
+        {
+          title: 'Rushmore',
+          year: 1998,
+          score: 87,
+          url: 'http://www.imdb.com/title/tt0128445/',
+          photo: 'demo/rushmore.jpg'
+        },
+        {
+          title: 'The Royal Tenenbaums',
+          year: 2001,
+          score: 80,
+          url: 'http://www.imdb.com/title/tt0265666/',
+          photo: 'demo/the-royal-tenenbaums.jpg'
+        },
+        {
+          title: 'The Life Aquatic with Steve Zissou',
+          year: 2004,
+          score: 53,
+          url: 'http://www.imdb.com/title/tt0362270/',
+          photo: 'demo/the-life-aquatic.jpg'
+        },
+        {
+          title: 'The Darjeeling Limited',
+          year: 2007,
+          score: 67,
+          url: 'http://www.imdb.com/title/tt0838221/',
+          photo: 'demo/the-darjeeling-limited.jpg'
+        },
+        {
+          title: 'Fantastic Mr. Fox',
+          year: 2009,
+          score: 93,
+          url: 'http://www.imdb.com/title/tt0432283/',
+          photo: 'demo/fantastic-mr-fox.jpg'
+        },
+        {
+          title: 'Moonrise Kingdom',
+          year: 2012,
+          score: 94,
+          url: 'http://www.imdb.com/title/tt1748122/',
+          photo: 'demo/moonrise-kingdom.jpg'
+        },
+        {
+          title: 'The Grand Budapest Hotel',
+          year: 2014,
+          score: 91,
+          url: 'http://www.imdb.com/title/tt2278388/',
+          photo: 'demo/the-grand-budapest-hotel.jpg'
+        }
+      ];
+
+      var results = '';
+
+      // Keep a hash map of DOM position -> visual position (flexbox order).
+      data.forEach(function (value, idx) {
+        // Add to the object a key called `_idx` with a value of the
+        // `nth-child` index (the index in the `data` array plus 1 since
+        // `nth-child` uses one-based indexing).
+        data[idx]._idx = idx + 1;
+
+        // Generate the HTML for all of the items. And this should never
+        // change after the page has been loaded.
+        // (By the way, you really ought to use a templating engine.)
+        results += '<li><a title="' + esc(value.title) + '" href="' +
+                   esc(value.url) + '" target="_blank">' +
+                   '<img src="' + esc(value.photo) + '"><h2><em>' +
+                   esc(value.title) + '</em> (' + esc(value.year) + ')' +
+                   '<div class="score">RottenTomatoes: ' + esc(value.score) +
+                   '%</div></h2></li>';
+      });
+
+      document.querySelector('.sortable').innerHTML = results;
+
+      function sortBy(criterion) {
+        console.group('Sorting by', criterion);
+
+        var order = 1;
+        // `{criterion}` means sort by ascending.
+        // `-{criterion}` means sort by descending.
+        if (criterion[0] === '-') {
+          criterion = criterion.substr(1);
+          order = -1;
+        }
+
+        data.sort(function (a, b) {
+          if (a[criterion] < b[criterion]) {
+            return -1 * order;
+          }
+          if (a[criterion] > b[criterion]) {
+            return 1 * order;
+          }
+          return 0;
+        }).forEach(function (value, idx) {
+          // Update the visual position by changing the flexbox `order`.
+          // `value` is the object.
+          // `value._idx` is the true DOM position.
+          // `idx` is the visual position (flexbox `order`).
+          console.log(value.title, '(' + value.year + ')', value.score + '%');
+
+          var li = document.querySelector('.sortable li:nth-child(' + value._idx + ')');
+
+          // Simply change the `order`.
+          ['order', 'webkitOrder', 'msFlexOrder', 'mozBoxOrdinalGroup', 'webkitBoxOrdinalGroup'].some(function (value) {
+            if (value in li.style) {
+              return li.style[value] = idx + 1;
+            }
+          });
+        });
+
+        console.groupEnd();
+      }
+
+      // Whenever the "Sort by" radio input is checked, we change each row's
+      // flexbox `order` accordingly.
+      document.forms[0].addEventListener('change', function () {
+        sortBy(document.querySelector('input[name=sort]:checked').value);
+      }, false);
+    </script>
+  </body>
+</html>
