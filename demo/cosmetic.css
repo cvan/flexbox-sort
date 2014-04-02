@@ -1,6 +1,10 @@
 /* Basic styles for a general ambiancé for the demo.
    You don't need these styles at all - so scram! :) */
 
+a {
+  text-decoration: none;
+}
+
 body {
   background: #1abc9c;
   color: #fff;
