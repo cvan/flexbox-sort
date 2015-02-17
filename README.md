@@ -3,7 +3,7 @@
 Sort a list of nodes without changing the DOM (thank you, flexbox).
 
 The perfect use case: rendering filtered data, such as client-side search
-results, without having to reconsistute the DOM based on sort order.
+results, without having to reconstitute the DOM based on sort order.
 
 Instead of physically rearranging the existing DOM nodes,
 or destroying the existing nodes and re-rendering new ones, we
